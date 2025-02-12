@@ -1,0 +1,17 @@
+version: "3.9"
+name: "merch-store"
+services:
+  postgres:
+    image: postgres:latest
+    container_name: postgres
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: 123456
+      POSTGRES_DB: merch
+    ports:
+      - "5445:5432"
+    networks:
+      - backend
+networks:
+  backend:
+    driver: bridge

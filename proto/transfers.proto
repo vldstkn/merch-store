@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+option go_package = "merch-store/pkg/pb";
+
+service Transfers {
+  rpc SendCoins (SendCoinsReq) returns (SendCoinsRes);
+}
+
+message SendCoinsReq{
+ string FromUser = 1;
+ string ToUser = 2;
+ int64 amount = 3;
+}
+message SendCoinsRes{
+}
+
+message Received {
+  string FromUser = 1 [json_name="fromUser"];
+  int64 Amount = 2 [json_name="amount"];
+}
+message Sent{
+  string ToUser = 1 [json_name="toUser"];
+  int64 Amount = 2 [json_name="amount"];
+}
+
+message CoinsHistory{
+  repeated Received Received = 1 [json_name="received"];
+  repeated Sent Sent = 2 [json_name="sent"];
+}

@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+option go_package = "merch-store/pkg/pb";
+
+import "products.proto";
+import "transfers.proto";
+
+service Account{
+  rpc Auth(AuthReq) returns (AuthRes);
+  rpc GetInfo(GetInfoReq) returns (GetInfoRes);
+  rpc DeductBalance(DeductBalanceReq) returns (DeductBalanceRes);
+  rpc Refund(RefundReq) returns (RefundRes);
+}
+message AuthReq{
+  string username = 1;
+  string password = 2;
+}
+message AuthRes{
+  string token = 1 [json_name = "token"];
+}
+message GetInfoReq{
+  int64 userId = 1;
+}
+message GetInfoRes{
+  int64 coins = 1 [json_name = "coins"];
+  repeated Inventory inventory = 2 [json_name = "inventory"];
+  CoinsHistory coinsHistory = 3 [json_name = "coinHistory"];
+}
+
+message DeductBalanceReq{
+  int64 userId = 1;
+  int64 amount = 2;
+}
+message DeductBalanceRes{
+}
+message RefundReq{
+  int64 userId = 1;
+  int64 amount = 2;
+}
+message RefundRes{
+}

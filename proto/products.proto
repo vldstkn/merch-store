@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+option go_package = "merch-store/pkg/pb";
+
+service Product{
+  rpc Buy (BuyReq) returns(BuyRes);
+  rpc GetUserInventory (GetUserInventoryReq) returns (GetUserInventoryRes);
+}
+
+message ProductPub{
+  string Type = 1;
+  int64 Price = 2;
+}
+
+message Inventory{
+  string type = 1;
+  int64 quantity = 2;
+}
+
+message BuyReq{
+  int64 userId = 1;
+  int64 productId = 2;
+}
+message BuyRes{
+}
+
+message GetUserInventoryReq{
+  int64 userId = 1;
+}
+message GetUserInventoryRes{
+  repeated Inventory inventory = 1;
+}

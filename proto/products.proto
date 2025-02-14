@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-option go_package = "merch-store/pkg/pb";
+option go_package = "merch_store/pkg/pb";
 
 service Product{
   rpc Buy (BuyReq) returns(BuyRes);
@@ -18,14 +18,14 @@ message Inventory{
 }
 
 message BuyReq{
-  int64 userId = 1;
-  int64 productId = 2;
+  string userName = 1;
+  string productType = 2;
 }
 message BuyRes{
 }
 
 message GetUserInventoryReq{
-  int64 userId = 1;
+  string userName = 1;
 }
 message GetUserInventoryRes{
   repeated Inventory inventory = 1;

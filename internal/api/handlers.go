@@ -3,8 +3,8 @@ package api
 import (
 	"github.com/go-chi/chi/v5"
 	"log/slog"
-	"merch-store/internal/api/handlers"
-	"merch-store/internal/config"
+	"merch_store/internal/api/handlers"
+	"merch_store/internal/config"
 )
 
 type HandlersDeps struct {

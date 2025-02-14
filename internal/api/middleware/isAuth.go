@@ -2,15 +2,15 @@ package middleware
 
 import (
 	"context"
-	"merch-store/internal/api/dto"
-	"merch-store/pkg/jwt"
-	"merch-store/pkg/res"
+	"merch_store/internal/api/dto"
+	"merch_store/pkg/jwt"
+	"merch_store/pkg/res"
 	"net/http"
 	"strings"
 )
 
 type AuthData struct {
-	Id int64
+	Name string
 }
 
 func writeUnauthed(w http.ResponseWriter) {
@@ -29,12 +29,13 @@ func IsAuthed(secret string) func(next http.Handler) http.Handler {
 			}
 			token := strings.TrimPrefix(authedHeader, "Bearer ")
 			isValid, data := jwt.NewJWT(secret).Parse(token)
+
 			if !isValid {
 				writeUnauthed(w)
 				return
 			}
 			ctx := context.WithValue(r.Context(), "authData", AuthData{
-				Id: data.Id,
+				Name: data.Name,
 			})
 			req := r.WithContext(ctx)
 			next.ServeHTTP(w, req)

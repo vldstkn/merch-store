@@ -1,0 +1,307 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "Swagger Example API",
+        "contact": {
+            "email": "vldstkn.develop@gmail.com"
+        },
+        "version": "1.0"
+    },
+    "host": "localhost:8080",
+    "basePath": "/api",
+    "paths": {
+        "/auth": {
+            "post": {
+                "description": "При первой аутентификации пользователь создается автоматически.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Аутентификация и получение JWT-токена.",
+                "operationId": "auth",
+                "parameters": [
+                    {
+                        "description": "Имя пользователя и пароль.",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.AuthReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Успешный ответ"
+                    },
+                    "400": {
+                        "description": "Неверный запрос.",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorRes"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера.",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorRes"
+                        }
+                    }
+                }
+            }
+        },
+        "/buy/{productType}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Купить предмет за монеты.",
+                "operationId": "buy",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Тип продукта, который покупается.",
+                        "name": "productType",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Успешный ответ",
+                        "schema": {
+                            "$ref": "#/definitions/dto.GetInfoRes"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный запрос.",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorRes"
+                        }
+                    },
+                    "401": {
+                        "description": "Пользователь не авторизован.",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorRes"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера.",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorRes"
+                        }
+                    }
+                }
+            }
+        },
+        "/info": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Получить информацию о балансе, купленных предметах, истории переводов.",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Получить информацию о пользователе.",
+                "operationId": "info",
+                "responses": {
+                    "200": {
+                        "description": "Успешный ответ",
+                        "schema": {
+                            "$ref": "#/definitions/dto.GetInfoRes"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный запрос.",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorRes"
+                        }
+                    },
+                    "401": {
+                        "description": "Пользователь не авторизован.",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorRes"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера.",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorRes"
+                        }
+                    }
+                }
+            }
+        },
+        "/sendCoins": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Отправить монеты другому пользователю.",
+                "operationId": "sendCoins",
+                "parameters": [
+                    {
+                        "description": "Имя пользователя и сумма.",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.SendCoinsReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Успешный ответ"
+                    },
+                    "400": {
+                        "description": "Неверный запрос.",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorRes"
+                        }
+                    },
+                    "401": {
+                        "description": "Пользователь не авторизован.",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorRes"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера.",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorRes"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "dto.AuthReq": {
+            "type": "object",
+            "required": [
+                "password",
+                "username"
+            ],
+            "properties": {
+                "password": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.CoinsHistory": {
+            "type": "object",
+            "properties": {
+                "received": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.Received"
+                    }
+                },
+                "sent": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.Sent"
+                    }
+                }
+            }
+        },
+        "dto.ErrorRes": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.GetInfoRes": {
+            "type": "object",
+            "properties": {
+                "coins": {
+                    "type": "integer"
+                },
+                "coinsHistory": {
+                    "$ref": "#/definitions/dto.CoinsHistory"
+                },
+                "inventory": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.Inventory"
+                    }
+                }
+            }
+        },
+        "dto.Inventory": {
+            "type": "object",
+            "properties": {
+                "quantity": {
+                    "type": "integer"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.Received": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "integer"
+                },
+                "from_user": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.SendCoinsReq": {
+            "type": "object",
+            "required": [
+                "amount",
+                "toUser"
+            ],
+            "properties": {
+                "amount": {
+                    "type": "integer"
+                },
+                "toUser": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.Sent": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "integer"
+                },
+                "to_user": {
+                    "type": "string"
+                }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
+    }
+}

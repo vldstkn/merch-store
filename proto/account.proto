@@ -1,15 +1,23 @@
 syntax = "proto3";
 
-option go_package = "merch-store/pkg/pb";
+option go_package = "merch_store/pkg/pb";
 
 import "products.proto";
 import "transfers.proto";
+
+
+import "google/protobuf/descriptor.proto";
+
+extend google.protobuf.FieldOptions{
+  string go_tag = 50001;
+}
 
 service Account{
   rpc Auth(AuthReq) returns (AuthRes);
   rpc GetInfo(GetInfoReq) returns (GetInfoRes);
   rpc DeductBalance(DeductBalanceReq) returns (DeductBalanceRes);
   rpc Refund(RefundReq) returns (RefundRes);
+  rpc TransferCoins(TransferCoinsReq) returns (TransferCoinsRes);
 }
 message AuthReq{
   string username = 1;
@@ -19,23 +27,31 @@ message AuthRes{
   string token = 1 [json_name = "token"];
 }
 message GetInfoReq{
-  int64 userId = 1;
+  string userName = 1;
 }
 message GetInfoRes{
   int64 coins = 1 [json_name = "coins"];
-  repeated Inventory inventory = 2 [json_name = "inventory"];
+  repeated Inventory inventory = 2 [(go_tag) = 'json:"name"' ];
   CoinsHistory coinsHistory = 3 [json_name = "coinHistory"];
 }
 
 message DeductBalanceReq{
-  int64 userId = 1;
+  string userName = 1;
   int64 amount = 2;
 }
 message DeductBalanceRes{
 }
 message RefundReq{
-  int64 userId = 1;
+  string userName = 1;
   int64 amount = 2;
 }
 message RefundRes{
+}
+
+message TransferCoinsReq{
+  string userFromName = 1;
+  string userToName = 2;
+  int64 amount = 3;
+}
+message TransferCoinsRes{
 }

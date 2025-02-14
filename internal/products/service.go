@@ -4,8 +4,8 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"log/slog"
-	"merch-store/internal/interfaces"
-	"merch-store/internal/models"
+	"merch_store/internal/interfaces"
+	"merch_store/internal/models"
 	"net/http"
 )
 
@@ -25,28 +25,28 @@ func NewService(deps *ServiceDeps) *Service {
 	}
 }
 
-func (service *Service) AddProductToInventory(userId, productId int64) error {
-	err := service.Repository.AddProductToInventory(userId, productId)
+func (service *Service) AddProductToInventory(userName, productType string) error {
+	err := service.Repository.AddProductToInventory(userName, productType)
 	if err != nil {
 		service.Logger.Error(err.Error(),
 			slog.String("Error location", "Repository.AddProductToInventory"),
-			slog.Int64("User Id", userId),
-			slog.Int64("Product Id", productId),
+			slog.String("User name", userName),
+			slog.String("Product type", productType),
 		)
 		return status.Errorf(codes.InvalidArgument, http.StatusText(http.StatusBadRequest))
 	}
 	return nil
 }
-func (service *Service) GetUserInventory(userId int64) []models.Inventory {
-	inventory := service.Repository.GetUserInventory(userId)
+func (service *Service) GetUserInventory(userName string) []models.Inventory {
+	inventory := service.Repository.GetUserInventory(userName)
 	return inventory
 }
-func (service *Service) GetPriceProduct(productId int64) (int64, error) {
-	product := service.Repository.GetProduct(productId)
+func (service *Service) GetPriceProduct(productType string) (int64, error) {
+	product := service.Repository.GetProduct(productType)
 	if product == nil {
 		service.Logger.Error("product id is bad",
 			slog.String("Error location", "Repository.GetProduct"),
-			slog.Int64("Product Id", productId),
+			slog.String("Product type", productType),
 		)
 		return 0, status.Errorf(codes.InvalidArgument, http.StatusText(http.StatusBadRequest))
 	}

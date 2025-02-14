@@ -15,6 +15,33 @@ const (
 	PinkHoody ProductType = "pink-hoody"
 )
 
+func IsValid(item string) bool {
+	switch item {
+	case string(TSirt):
+		return true
+	case string(Cup):
+		return true
+	case string(Book):
+		return true
+	case string(Pen):
+		return true
+	case string(Powerbank):
+		return true
+	case string(Hoody):
+		return true
+	case string(Umbrella):
+		return true
+	case string(Socks):
+		return true
+	case string(Wallet):
+		return true
+	case string(PinkHoody):
+		return true
+	default:
+		return false
+	}
+}
+
 type Product struct {
 	Id    int64       `db:"id"`
 	Type  ProductType `db:"type"`

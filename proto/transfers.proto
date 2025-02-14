@@ -1,9 +1,10 @@
 syntax = "proto3";
 
-option go_package = "merch-store/pkg/pb";
+option go_package = "merch_store/pkg/pb";
 
 service Transfers {
   rpc SendCoins (SendCoinsReq) returns (SendCoinsRes);
+  rpc GetHistory (GetHistoryReq) returns (GetHistoryRes);
 }
 
 message SendCoinsReq{
@@ -15,15 +16,22 @@ message SendCoinsRes{
 }
 
 message Received {
-  string FromUser = 1 [json_name="fromUser"];
-  int64 Amount = 2 [json_name="amount"];
+  string FromUser = 1;
+  int64 Amount = 2;
 }
 message Sent{
-  string ToUser = 1 [json_name="toUser"];
-  int64 Amount = 2 [json_name="amount"];
+  string ToUser = 1;
+  int64 Amount = 2;
 }
 
 message CoinsHistory{
-  repeated Received Received = 1 [json_name="received"];
-  repeated Sent Sent = 2 [json_name="sent"];
+  repeated Received Received = 1;
+  repeated Sent Sent = 2;
+}
+
+message GetHistoryReq{
+  string userName = 1;
+}
+message GetHistoryRes{
+    CoinsHistory coinsHistory = 1;
 }

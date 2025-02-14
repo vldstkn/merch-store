@@ -2,11 +2,9 @@ package saga
 
 import (
 	"context"
-	"merch-store/internal/interfaces"
-	"merch-store/pkg/pb"
+	"merch_store/internal/interfaces"
+	"merch_store/pkg/pb"
 )
-
-type Status string
 
 type BuySaga struct {
 	AccountClient  pb.AccountClient
@@ -25,23 +23,23 @@ func NewBuySaga(deps *BuySagaDeps) *BuySaga {
 	}
 }
 
-func (saga *BuySaga) Start(userId, productId int64) error {
-	price, err := saga.ProductService.GetPriceProduct(productId)
+func (saga *BuySaga) Start(userName, productType string) error {
+	price, err := saga.ProductService.GetPriceProduct(productType)
 	if err != nil {
 		return err
 	}
 	_, err = saga.AccountClient.DeductBalance(context.Background(), &pb.DeductBalanceReq{
-		Amount: price,
-		UserId: userId,
+		Amount:   price,
+		UserName: userName,
 	})
 	if err != nil {
 		return err
 	}
-	err = saga.ProductService.AddProductToInventory(userId, productId)
+	err = saga.ProductService.AddProductToInventory(userName, productType)
 	if err != nil {
 		saga.AccountClient.Refund(context.Background(), &pb.RefundReq{
-			Amount: price,
-			UserId: userId,
+			Amount:   price,
+			UserName: userName,
 		})
 		return err
 	}

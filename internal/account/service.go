@@ -5,10 +5,10 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"log/slog"
-	http_errors "merch-store/internal/errors"
-	"merch-store/internal/interfaces"
-	"merch-store/internal/models"
-	"merch-store/pkg/jwt"
+	http_errors "merch_store/internal/errors"
+	"merch_store/internal/interfaces"
+	"merch_store/internal/models"
+	"merch_store/pkg/jwt"
 	"net/http"
 	"time"
 )
@@ -65,32 +65,73 @@ func (service *Service) IssueToken(secret string, data jwt.Data) (string, error)
 	return token, nil
 }
 
-func (service *Service) UserIsExists(userId int64) bool {
-	user := service.Repository.GetById(userId)
+func (service *Service) UserIsExists(userName string) bool {
+	user := service.Repository.GetByName(userName)
 	return user != nil
 }
 
-func (service *Service) DeductBalance(userId, amount int64) error {
-	user := service.Repository.GetById(userId)
+func (service *Service) DeductBalance(userName string, amount int64) error {
+	user := service.Repository.GetByName(userName)
 	if user == nil {
 		return status.Errorf(codes.InvalidArgument, http.StatusText(http.StatusBadRequest))
 	}
-	err := service.Repository.DeductBalance(userId, amount)
+	err := service.Repository.DeductBalance(userName, amount)
 	if err != nil {
 		return status.Errorf(codes.InvalidArgument, http_errors.InsufficientFunds)
 	}
 	return err
 }
 
-func (service *Service) Refund(userId, amount int64) error {
-	user := service.Repository.GetById(userId)
+func (service *Service) Refund(userName string, amount int64) error {
+	user := service.Repository.GetByName(userName)
 	if user == nil {
 		return status.Errorf(codes.InvalidArgument, http.StatusText(http.StatusBadRequest))
 	}
-	err := service.Repository.Refund(userId, amount)
+	err := service.Repository.Refund(userName, amount)
 	if err != nil {
 		return status.Errorf(codes.Internal, http.StatusText(http.StatusInternalServerError))
 	}
 	return err
 
+}
+
+func (service *Service) GetBalanceById(userName string) (int64, error) {
+	user := service.Repository.GetByName(userName)
+	if user == nil {
+		return 0, status.Errorf(codes.InvalidArgument, http.StatusText(http.StatusBadRequest))
+	}
+	return user.Balance, nil
+}
+func (service *Service) TransferCoins(userFromName, userToName string, amount int64) error {
+	userFrom := service.Repository.GetByName(userFromName)
+	if userFrom == nil {
+		service.Logger.Error(http_errors.UserNameNotFound,
+			slog.String("User name from", userFromName),
+		)
+		return status.Errorf(codes.InvalidArgument, http_errors.UserNameNotFound)
+	}
+	if userFrom.Balance < amount {
+		service.Logger.Error(http_errors.InsufficientFunds,
+			slog.String("User name from", userFromName),
+			slog.Int64("Amount", amount),
+		)
+		return status.Errorf(codes.InvalidArgument, http_errors.InsufficientFunds)
+	}
+	userTo := service.Repository.GetByName(userToName)
+	if userTo == nil {
+		service.Logger.Error(http_errors.UserNameNotFound,
+			slog.String("User name to", userToName),
+		)
+		return status.Errorf(codes.InvalidArgument, http_errors.UserNameNotFound)
+	}
+	err := service.Repository.TransferCoins(userFromName, userToName, amount)
+	if err != nil {
+		service.Logger.Error(err.Error(),
+			slog.String("User name from", userFromName),
+			slog.String("User name to", userToName),
+			slog.Int64("User name amount", amount),
+		)
+		return status.Errorf(codes.Internal, http.StatusText(http.StatusInternalServerError))
+	}
+	return nil
 }

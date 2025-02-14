@@ -4,15 +4,15 @@ import (
 	"context"
 	"github.com/go-chi/chi/v5"
 	"log/slog"
-	"merch-store/internal/api/dto"
-	"merch-store/internal/api/middleware"
-	"merch-store/internal/config"
-	http_errors "merch-store/internal/errors"
-	grpc_conn "merch-store/pkg/grpc-conn"
-	"merch-store/pkg/pb"
-	"merch-store/pkg/res"
+	"merch_store/internal/api/dto"
+	"merch_store/internal/api/middleware"
+	"merch_store/internal/config"
+	http_errors "merch_store/internal/errors"
+	"merch_store/internal/models"
+	grpc_conn "merch_store/pkg/grpc-conn"
+	"merch_store/pkg/pb"
+	"merch_store/pkg/res"
 	"net/http"
-	"strconv"
 )
 
 type ProductsHandlerDeps struct {
@@ -27,7 +27,7 @@ type ProductsHandler struct {
 }
 
 func NewProductsHandler(router *chi.Mux, deps *ProductsHandlerDeps) error {
-	productsConn, err := grpc_conn.NewClientConn(deps.Config.ProductsAddress)
+	productsConn, err := grpc_conn.NewClientConn(deps.Config.Addresses.Products)
 	if err != nil {
 		return err
 	}
@@ -38,30 +38,42 @@ func NewProductsHandler(router *chi.Mux, deps *ProductsHandlerDeps) error {
 		ProductsClient: productsClient,
 	}
 	router.Group(func(r chi.Router) {
-		r.Use(middleware.IsAuthed(handler.Config.JWTSecret))
+		r.Use(middleware.IsAuthed(handler.Config.Auth.Jwt))
 		r.Get("/buy/{item}", handler.Buy())
 	})
 	return nil
 }
 
+// Buy
+//
+//		@Summary		Купить предмет за монеты.
+//		@ID				buy
+//		@Produce		json
+//		@Param		productType	path string	true	"Тип продукта, который покупается."
+//		@Success		200 {object} dto.GetInfoRes		"Успешный ответ"
+//		@Failure		400		{object}	dto.ErrorRes	"Неверный запрос."
+//		@Failure		401		{object}	dto.ErrorRes	"Пользователь не авторизован."
+//		@Failure		500		{object}	dto.ErrorRes	"Внутренняя ошибка сервера."
+//		@Router			/buy/{productType} [get]
+//	 @Security BearerAuth
 func (handler *ProductsHandler) Buy() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		productStr := chi.URLParam(r, "item")
-		productId, err := strconv.Atoi(productStr)
-		if err != nil {
-			handler.Logger.Error(err.Error(),
-				slog.String("Error location", "strconv.Atoi"),
-				slog.String("Item id", productStr),
+		productType := chi.URLParam(r, "item")
+		isValid := models.IsValid(productType)
+		if !isValid {
+			handler.Logger.Error("product type undefined",
+				slog.String("Error location", "chi.URLParam"),
+				slog.String("Item type", productType),
 			)
 			res.Json(w, dto.ErrorRes{
 				Error: http.StatusText(http.StatusBadRequest),
 			}, http.StatusBadRequest)
 			return
 		}
-		userId := r.Context().Value("authData").(middleware.AuthData).Id
-		_, err = handler.ProductsClient.Buy(context.Background(), &pb.BuyReq{
-			UserId:    userId,
-			ProductId: int64(productId),
+		name := r.Context().Value("authData").(middleware.AuthData).Name
+		_, err := handler.ProductsClient.Buy(context.Background(), &pb.BuyReq{
+			UserName:    name,
+			ProductType: productType,
 		})
 		if err != nil {
 			mes, code := http_errors.HandleError(err)

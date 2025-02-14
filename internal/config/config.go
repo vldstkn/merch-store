@@ -1,30 +1,40 @@
 package config
 
 import (
-	"github.com/joho/godotenv"
+	"github.com/spf13/viper"
+	"log"
 	"os"
 )
 
 type Config struct {
-	ApiAddress       string
-	AccountAddress   string
-	ProductsAddress  string
-	TransfersAddress string
-	DSN              string
-	JWTSecret        string
+	Addresses struct {
+		Api       string `yaml:"api"`
+		Account   string `yaml:"account"`
+		Products  string `yaml:"products"`
+		Transfers string `yaml:"transfers"`
+	} `yaml:"addresses"`
+	Database struct {
+		Dsn string `yaml:"dsn"`
+	} `yaml:"database"`
+	Auth struct {
+		Jwt string `yaml:"jwt"`
+	} `yaml:"auth"`
 }
 
-func LoadConfig() *Config {
-	err := godotenv.Load("./configs/.env")
-	if err != nil {
-		panic(err)
+func LoadConfig(path, mode string) *Config {
+	env := os.Getenv("APP_ENV")
+	if env == "" {
+		env = "dev"
 	}
-	return &Config{
-		ApiAddress:       os.Getenv("ApiAddress"),
-		AccountAddress:   os.Getenv("AccountAddress"),
-		ProductsAddress:  os.Getenv("ProductsAddress"),
-		TransfersAddress: os.Getenv("TransfersAddress"),
-		DSN:              os.Getenv("DSN"),
-		JWTSecret:        os.Getenv("JWTSecret"),
+	viper.SetConfigName("config." + env)
+	viper.SetConfigType("yaml")
+	viper.AddConfigPath(path)
+	if err := viper.ReadInConfig(); err != nil {
+		log.Fatalf("bad path to config: %v", path)
 	}
+	var config Config
+	if err := viper.Unmarshal(&config); err != nil {
+		log.Fatalf("YAML parsing error")
+	}
+	return &config
 }

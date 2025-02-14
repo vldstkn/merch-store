@@ -1,0 +1,197 @@
+basePath: /api
+definitions:
+  dto.AuthReq:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  dto.CoinsHistory:
+    properties:
+      received:
+        items:
+          $ref: '#/definitions/dto.Received'
+        type: array
+      sent:
+        items:
+          $ref: '#/definitions/dto.Sent'
+        type: array
+    type: object
+  dto.ErrorRes:
+    properties:
+      error:
+        type: string
+    type: object
+  dto.GetInfoRes:
+    properties:
+      coins:
+        type: integer
+      coinsHistory:
+        $ref: '#/definitions/dto.CoinsHistory'
+      inventory:
+        items:
+          $ref: '#/definitions/dto.Inventory'
+        type: array
+    type: object
+  dto.Inventory:
+    properties:
+      quantity:
+        type: integer
+      type:
+        type: string
+    type: object
+  dto.Received:
+    properties:
+      amount:
+        type: integer
+      from_user:
+        type: string
+    type: object
+  dto.SendCoinsReq:
+    properties:
+      amount:
+        type: integer
+      toUser:
+        type: string
+    required:
+    - amount
+    - toUser
+    type: object
+  dto.Sent:
+    properties:
+      amount:
+        type: integer
+      to_user:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: vldstkn.develop@gmail.com
+  title: Swagger Example API
+  version: "1.0"
+paths:
+  /auth:
+    post:
+      consumes:
+      - application/json
+      description: При первой аутентификации пользователь создается автоматически.
+      operationId: auth
+      parameters:
+      - description: Имя пользователя и пароль.
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.AuthReq'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Успешный ответ
+        "400":
+          description: Неверный запрос.
+          schema:
+            $ref: '#/definitions/dto.ErrorRes'
+        "500":
+          description: Внутренняя ошибка сервера.
+          schema:
+            $ref: '#/definitions/dto.ErrorRes'
+      summary: Аутентификация и получение JWT-токена.
+  /buy/{productType}:
+    get:
+      operationId: buy
+      parameters:
+      - description: Тип продукта, который покупается.
+        in: path
+        name: productType
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Успешный ответ
+          schema:
+            $ref: '#/definitions/dto.GetInfoRes'
+        "400":
+          description: Неверный запрос.
+          schema:
+            $ref: '#/definitions/dto.ErrorRes'
+        "401":
+          description: Пользователь не авторизован.
+          schema:
+            $ref: '#/definitions/dto.ErrorRes'
+        "500":
+          description: Внутренняя ошибка сервера.
+          schema:
+            $ref: '#/definitions/dto.ErrorRes'
+      security:
+      - BearerAuth: []
+      summary: Купить предмет за монеты.
+  /info:
+    get:
+      description: Получить информацию о балансе, купленных предметах, истории переводов.
+      operationId: info
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Успешный ответ
+          schema:
+            $ref: '#/definitions/dto.GetInfoRes'
+        "400":
+          description: Неверный запрос.
+          schema:
+            $ref: '#/definitions/dto.ErrorRes'
+        "401":
+          description: Пользователь не авторизован.
+          schema:
+            $ref: '#/definitions/dto.ErrorRes'
+        "500":
+          description: Внутренняя ошибка сервера.
+          schema:
+            $ref: '#/definitions/dto.ErrorRes'
+      security:
+      - BearerAuth: []
+      summary: Получить информацию о пользователе.
+  /sendCoins:
+    post:
+      operationId: sendCoins
+      parameters:
+      - description: Имя пользователя и сумма.
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.SendCoinsReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Успешный ответ
+        "400":
+          description: Неверный запрос.
+          schema:
+            $ref: '#/definitions/dto.ErrorRes'
+        "401":
+          description: Пользователь не авторизован.
+          schema:
+            $ref: '#/definitions/dto.ErrorRes'
+        "500":
+          description: Внутренняя ошибка сервера.
+          schema:
+            $ref: '#/definitions/dto.ErrorRes'
+      security:
+      - BearerAuth: []
+      summary: Отправить монеты другому пользователю.
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

@@ -9,6 +9,7 @@ const (
 	InvalidNameOrPassword = "invalid email or password"
 	InvalidName           = "the name is already taken"
 	InsufficientFunds     = "insufficient funds"
+	UserNameNotFound      = "the user with that name was not found."
 )
 
 func HandleError(err error) (string, int) {

@@ -23,6 +23,7 @@ const (
 	Account_GetInfo_FullMethodName       = "/Account/GetInfo"
 	Account_DeductBalance_FullMethodName = "/Account/DeductBalance"
 	Account_Refund_FullMethodName        = "/Account/Refund"
+	Account_TransferCoins_FullMethodName = "/Account/TransferCoins"
 )
 
 // AccountClient is the client API for Account service.
@@ -33,6 +34,7 @@ type AccountClient interface {
 	GetInfo(ctx context.Context, in *GetInfoReq, opts ...grpc.CallOption) (*GetInfoRes, error)
 	DeductBalance(ctx context.Context, in *DeductBalanceReq, opts ...grpc.CallOption) (*DeductBalanceRes, error)
 	Refund(ctx context.Context, in *RefundReq, opts ...grpc.CallOption) (*RefundRes, error)
+	TransferCoins(ctx context.Context, in *TransferCoinsReq, opts ...grpc.CallOption) (*TransferCoinsRes, error)
 }
 
 type accountClient struct {
@@ -83,6 +85,16 @@ func (c *accountClient) Refund(ctx context.Context, in *RefundReq, opts ...grpc.
 	return out, nil
 }
 
+func (c *accountClient) TransferCoins(ctx context.Context, in *TransferCoinsReq, opts ...grpc.CallOption) (*TransferCoinsRes, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(TransferCoinsRes)
+	err := c.cc.Invoke(ctx, Account_TransferCoins_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AccountServer is the server API for Account service.
 // All implementations must embed UnimplementedAccountServer
 // for forward compatibility.
@@ -91,6 +103,7 @@ type AccountServer interface {
 	GetInfo(context.Context, *GetInfoReq) (*GetInfoRes, error)
 	DeductBalance(context.Context, *DeductBalanceReq) (*DeductBalanceRes, error)
 	Refund(context.Context, *RefundReq) (*RefundRes, error)
+	TransferCoins(context.Context, *TransferCoinsReq) (*TransferCoinsRes, error)
 	mustEmbedUnimplementedAccountServer()
 }
 
@@ -112,6 +125,9 @@ func (UnimplementedAccountServer) DeductBalance(context.Context, *DeductBalanceR
 }
 func (UnimplementedAccountServer) Refund(context.Context, *RefundReq) (*RefundRes, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Refund not implemented")
+}
+func (UnimplementedAccountServer) TransferCoins(context.Context, *TransferCoinsReq) (*TransferCoinsRes, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method TransferCoins not implemented")
 }
 func (UnimplementedAccountServer) mustEmbedUnimplementedAccountServer() {}
 func (UnimplementedAccountServer) testEmbeddedByValue()                 {}
@@ -206,6 +222,24 @@ func _Account_Refund_Handler(srv interface{}, ctx context.Context, dec func(inte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Account_TransferCoins_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TransferCoinsReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AccountServer).TransferCoins(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Account_TransferCoins_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AccountServer).TransferCoins(ctx, req.(*TransferCoinsReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Account_ServiceDesc is the grpc.ServiceDesc for Account service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -228,6 +262,10 @@ var Account_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Refund",
 			Handler:    _Account_Refund_Handler,
+		},
+		{
+			MethodName: "TransferCoins",
+			Handler:    _Account_TransferCoins_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

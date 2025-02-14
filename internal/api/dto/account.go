@@ -16,6 +16,17 @@ type Sent struct {
 }
 
 type CoinsHistory struct {
-	Received Received `json:"received"`
-	Sent     Sent     `json:"sent"`
+	Received []Received `json:"received"`
+	Sent     []Sent     `json:"sent"`
+}
+
+type Inventory struct {
+	Type     string `json:"type"`
+	Quantity int64  `json:"quantity"`
+}
+
+type GetInfoRes struct {
+	Inventory    []Inventory  `json:"inventory"`
+	Coins        int64        `json:"coins"`
+	CoinsHistory CoinsHistory `json:"coinsHistory"`
 }

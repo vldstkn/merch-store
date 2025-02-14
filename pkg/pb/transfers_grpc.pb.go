@@ -19,7 +19,8 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Transfers_SendCoins_FullMethodName = "/Transfers/SendCoins"
+	Transfers_SendCoins_FullMethodName  = "/Transfers/SendCoins"
+	Transfers_GetHistory_FullMethodName = "/Transfers/GetHistory"
 )
 
 // TransfersClient is the client API for Transfers service.
@@ -27,6 +28,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type TransfersClient interface {
 	SendCoins(ctx context.Context, in *SendCoinsReq, opts ...grpc.CallOption) (*SendCoinsRes, error)
+	GetHistory(ctx context.Context, in *GetHistoryReq, opts ...grpc.CallOption) (*GetHistoryRes, error)
 }
 
 type transfersClient struct {
@@ -47,11 +49,22 @@ func (c *transfersClient) SendCoins(ctx context.Context, in *SendCoinsReq, opts 
 	return out, nil
 }
 
+func (c *transfersClient) GetHistory(ctx context.Context, in *GetHistoryReq, opts ...grpc.CallOption) (*GetHistoryRes, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetHistoryRes)
+	err := c.cc.Invoke(ctx, Transfers_GetHistory_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // TransfersServer is the server API for Transfers service.
 // All implementations must embed UnimplementedTransfersServer
 // for forward compatibility.
 type TransfersServer interface {
 	SendCoins(context.Context, *SendCoinsReq) (*SendCoinsRes, error)
+	GetHistory(context.Context, *GetHistoryReq) (*GetHistoryRes, error)
 	mustEmbedUnimplementedTransfersServer()
 }
 
@@ -64,6 +77,9 @@ type UnimplementedTransfersServer struct{}
 
 func (UnimplementedTransfersServer) SendCoins(context.Context, *SendCoinsReq) (*SendCoinsRes, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SendCoins not implemented")
+}
+func (UnimplementedTransfersServer) GetHistory(context.Context, *GetHistoryReq) (*GetHistoryRes, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetHistory not implemented")
 }
 func (UnimplementedTransfersServer) mustEmbedUnimplementedTransfersServer() {}
 func (UnimplementedTransfersServer) testEmbeddedByValue()                   {}
@@ -104,6 +120,24 @@ func _Transfers_SendCoins_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Transfers_GetHistory_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetHistoryReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TransfersServer).GetHistory(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Transfers_GetHistory_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TransfersServer).GetHistory(ctx, req.(*GetHistoryReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Transfers_ServiceDesc is the grpc.ServiceDesc for Transfers service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -114,6 +148,10 @@ var Transfers_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SendCoins",
 			Handler:    _Transfers_SendCoins_Handler,
+		},
+		{
+			MethodName: "GetHistory",
+			Handler:    _Transfers_GetHistory_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

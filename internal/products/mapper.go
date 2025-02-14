@@ -1,8 +1,8 @@
 package products
 
 import (
-	"merch-store/internal/models"
-	"merch-store/pkg/pb"
+	"merch_store/internal/models"
+	"merch_store/pkg/pb"
 )
 
 func InventoryFromModelToGrpc(inventory *models.Inventory) *pb.Inventory {

@@ -3,11 +3,11 @@ package products
 import (
 	"context"
 	"log/slog"
-	"merch-store/internal/config"
-	"merch-store/internal/interfaces"
-	"merch-store/internal/products/saga"
-	grpc_conn "merch-store/pkg/grpc-conn"
-	"merch-store/pkg/pb"
+	"merch_store/internal/config"
+	"merch_store/internal/interfaces"
+	"merch_store/internal/products/saga"
+	grpc_conn "merch_store/pkg/grpc-conn"
+	"merch_store/pkg/pb"
 )
 
 type Handler struct {
@@ -25,11 +25,11 @@ type HandlerDeps struct {
 }
 
 func NewHandler(deps *HandlerDeps) (*Handler, error) {
-	accountConn, err := grpc_conn.NewClientConn(deps.Config.AccountAddress)
+	accountConn, err := grpc_conn.NewClientConn(deps.Config.Addresses.Account)
 	if err != nil {
 		deps.Logger.Error(err.Error(),
 			slog.String("Error location", "grpc_conn.NewClientConn"),
-			slog.String("Account address", deps.Config.AccountAddress),
+			slog.String("Account address", deps.Config.Addresses.Account),
 		)
 		return nil, err
 	}
@@ -43,7 +43,7 @@ func NewHandler(deps *HandlerDeps) (*Handler, error) {
 }
 
 func (handler *Handler) GetUserInventory(ctx context.Context, r *pb.GetUserInventoryReq) (*pb.GetUserInventoryRes, error) {
-	inventory := handler.Service.GetUserInventory(r.UserId)
+	inventory := handler.Service.GetUserInventory(r.UserName)
 	return &pb.GetUserInventoryRes{
 		Inventory: InventoryFromModelsToGrpc(inventory),
 	}, nil
@@ -53,7 +53,7 @@ func (handler *Handler) Buy(ctx context.Context, r *pb.BuyReq) (*pb.BuyRes, erro
 		AccountClient:  handler.AccountClient,
 		ProductService: handler.Service,
 	})
-	err := saga.Start(r.UserId, r.ProductId)
+	err := saga.Start(r.UserName, r.ProductType)
 	if err != nil {
 		return nil, err
 	}

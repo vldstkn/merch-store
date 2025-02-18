@@ -50,7 +50,7 @@ func NewProductsHandler(router chi.Router, deps *ProductsHandlerDeps) error {
 //		@ID				buy
 //		@Produce		json
 //		@Param		productType	path string	true	"Тип продукта, который покупается."
-//		@Success		200 {object} dto.GetInfoRes		"Успешный ответ"
+//		@Success		200 		"Успешный ответ"
 //		@Failure		400		{object}	dto.ErrorRes	"Неверный запрос."
 //		@Failure		401		{object}	dto.ErrorRes	"Пользователь не авторизован."
 //		@Failure		500		{object}	dto.ErrorRes	"Внутренняя ошибка сервера."

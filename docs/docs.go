@@ -81,10 +81,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Успешный ответ",
-                        "schema": {
-                            "$ref": "#/definitions/dto.GetInfoRes"
-                        }
+                        "description": "Успешный ответ"
                     },
                     "400": {
                         "description": "Неверный запрос.",

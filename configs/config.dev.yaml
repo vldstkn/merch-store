@@ -5,3 +5,6 @@ addresses:
   transfers: "localhost:8103"
 database:
   dsn: "port=5445 host=localhost user=user dbname=merch password=123456 sslmode=disable"
+public:
+  host : "localhost"
+  port :  8080

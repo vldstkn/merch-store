@@ -26,7 +26,7 @@ type ProductsHandler struct {
 	ProductsClient pb.ProductClient
 }
 
-func NewProductsHandler(router *chi.Mux, deps *ProductsHandlerDeps) error {
+func NewProductsHandler(router chi.Router, deps *ProductsHandlerDeps) error {
 	productsConn, err := grpc_conn.NewClientConn(deps.Config.Addresses.Products)
 	if err != nil {
 		return err

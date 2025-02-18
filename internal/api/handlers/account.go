@@ -27,7 +27,7 @@ type AccountHandler struct {
 	AccountClient pb.AccountClient
 }
 
-func NewAccountHandler(router *chi.Mux, deps *AccountHandlerDeps) error {
+func NewAccountHandler(router chi.Router, deps *AccountHandlerDeps) error {
 	accountConn, err := grpc_conn.NewClientConn(deps.Config.Addresses.Account)
 	if err != nil {
 		return err

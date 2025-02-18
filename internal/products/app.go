@@ -61,6 +61,7 @@ func (app *App) Run() error {
 	app.Logger.Info("Server start",
 		slog.String("Name", "Products"),
 		slog.String("Address", app.Config.Addresses.Products),
+		slog.String("Mode", app.Mode),
 	)
 	err = server.Serve(lis)
 	defer server.Stop()

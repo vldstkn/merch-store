@@ -3,7 +3,6 @@ package config
 import (
 	"github.com/spf13/viper"
 	"log"
-	"os"
 )
 
 type Config struct {
@@ -19,14 +18,18 @@ type Config struct {
 	Auth struct {
 		Jwt string `yaml:"jwt"`
 	} `yaml:"auth"`
+	Public struct {
+		Host     string `yaml:"host"`
+		Port     int    `yaml:"port"`
+		Database struct {
+			Host string `yaml:"host"`
+			Port int    `yaml:"port"`
+		} `yaml:"database"`
+	} `yaml:"public"`
 }
 
 func LoadConfig(path, mode string) *Config {
-	env := os.Getenv("APP_ENV")
-	if env == "" {
-		env = "dev"
-	}
-	viper.SetConfigName("config." + env)
+	viper.SetConfigName("config." + mode)
 	viper.SetConfigType("yaml")
 	viper.AddConfigPath(path)
 	if err := viper.ReadInConfig(); err != nil {

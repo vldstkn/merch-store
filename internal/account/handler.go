@@ -36,7 +36,7 @@ func NewHandler(deps *HandlerDeps) (*Handler, error) {
 	}
 	productsClient := pb.NewProductClient(productsConn)
 
-	transfersConn, err := grpc_conn.NewClientConn(deps.Config.Addresses.Products)
+	transfersConn, err := grpc_conn.NewClientConn(deps.Config.Addresses.Transfers)
 	if err != nil {
 		return nil, err
 	}

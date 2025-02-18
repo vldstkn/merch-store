@@ -12,7 +12,7 @@ type HandlersDeps struct {
 	Logger *slog.Logger
 }
 
-func NewHandlers(router *chi.Mux, deps *HandlersDeps) error {
+func NewHandlers(router chi.Router, deps *HandlersDeps) error {
 	err := handlers.NewAccountHandler(router, &handlers.AccountHandlerDeps{
 		Config: deps.Config,
 		Logger: deps.Logger,

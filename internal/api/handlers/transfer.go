@@ -27,7 +27,7 @@ type TransferHandler struct {
 	TransfersClient pb.TransfersClient
 }
 
-func NewTransferHandler(router *chi.Mux, deps *TransferHandlerDeps) error {
+func NewTransferHandler(router chi.Router, deps *TransferHandlerDeps) error {
 
 	transfersConn, err := grpc_conn.NewClientConn(deps.Config.Addresses.Transfers)
 	if err != nil {
@@ -82,6 +82,7 @@ func (handler *TransferHandler) SendCoins() http.HandlerFunc {
 			res.Json(w, dto.ErrorRes{
 				Error: mes,
 			}, status)
+			return
 		}
 		w.WriteHeader(http.StatusOK)
 	}

@@ -28,13 +28,12 @@ func NewApp(deps *AppDeps) *App {
 
 func (app *App) Build() (*chi.Mux, error) {
 	router := chi.NewRouter()
-	router.Mount("/api", router)
-	err := NewHandlers(router, &HandlersDeps{
-		Config: app.Config,
-		Logger: app.Logger,
+	router.Route("/api", func(r chi.Router) {
+		NewHandlers(r, &HandlersDeps{
+			Config: app.Config,
+			Logger: app.Logger,
+		})
 	})
-	if err != nil {
-		return nil, err
-	}
+
 	return router, nil
 }

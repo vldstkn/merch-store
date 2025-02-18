@@ -3,7 +3,7 @@ name: "merch_store"
 services:
   postgres:
     image: postgres:latest
-    container_name: postgres
+    container_name: pg
     environment:
       POSTGRES_USER: user
       POSTGRES_PASSWORD: 123456
@@ -12,6 +12,69 @@ services:
       - "5445:5432"
     networks:
       - backend
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+  api:
+    container_name: api
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        SERVICE: api
+    environment:
+      APP_ENV: test
+    ports:
+      - "8080:8080"
+    networks:
+      - backend
+    volumes:
+      - ./configs:/configs
+  account:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        SERVICE: account
+    environment:
+      APP_ENV: test
+    networks:
+      - backend
+    volumes:
+      - ./configs:/configs
+    depends_on:
+      - postgres
+  products:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        SERVICE: products
+    environment:
+      APP_ENV: test
+    networks:
+      - backend
+    volumes:
+      - ./configs:/configs
+    depends_on:
+      - postgres
+  transfers:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        SERVICE: transfers
+    environment:
+      APP_ENV: test
+    networks:
+      - backend
+    volumes:
+      - ./configs:/configs
+    depends_on:
+      - postgres
+
 networks:
   backend:
     driver: bridge
+volumes:
+  pgdata:
